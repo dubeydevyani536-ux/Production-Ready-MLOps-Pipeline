@@ -1,0 +1,33 @@
+name: mlops-ci
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_mlops.txt
+
+      - name: Training smoke test
+        run: |
+          python train_mlops_pipeline.py --simulate --n_samples 1000 --target_col target
+
+      - name: API import smoke test
+        run: |
+          python -c "import app_fastapi; print('FastAPI app loaded successfully')"
